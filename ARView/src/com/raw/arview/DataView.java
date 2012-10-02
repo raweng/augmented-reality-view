@@ -20,6 +20,14 @@ import com.raw.utils.PaintUtils;
 import com.raw.utils.RadarLines;
 
 
+/**
+ * 
+ * Currently the markers are plotted with reference to line parallel to the earth surface.
+ * We are working to include the elevation and height factors.
+ * 
+ * */
+
+
 public class DataView {
 
 	RelativeLayout[] locationMarkerView;
@@ -29,11 +37,17 @@ public class DataView {
 	RelativeLayout.LayoutParams[] subjectTextViewParams;
 	TextView[] locationTextView;
 
-	String[] latitudeStr;
-	String[] longitudeStr;
-	double[] latitudes = new double[] {19.415481, 19.480834, 19.480834,19.410623, 19.48043, 19.477153, 19.472742, 19.43341, 21.201377, 21.201377,21.201377,21.201377,21.201377, 19.470962};
-	double[] longitudes = new double[] {72.782922, 72.777557,72.777557, 72.829056, 72.785797, 72.900167, 72.857466, 72.756271, 72.821159, 72.821159,72.821159,72.821159,72.821159, 72.799358};
-	int[] nextXofText = new int[20];
+	
+	
+	/*
+	 *  Array or Array lists of latitude and longitude to plot
+	 *  In your case you can populate with an ArrayList
+	 * */
+	
+	double[] latitudes = new double[] {0, 0};
+	double[] longitudes = new double[] {0, 0};
+	
+	int[] nextXofText ;
 	ArrayList<Integer> 	nextYofText = new ArrayList<Integer>();
 
 	double[] bearings;
@@ -41,8 +55,8 @@ public class DataView {
 	float yPosition;
 	Location currentLocation = new Location("provider");
 	Location destinedLocation = new Location("provider");
-	String[] places = new String[] {"Wagholi", "Agashi Church","Agashi Church 223433", "Ach", "Chikhaldongari", "Shirsad Phata", "Viva College", "Rajodi Beach", "Surat, Gujrat", "Ahmedabad","Ahmedabad 1234","Baroda","baroda 1234", "Virar, Maharashtra"};
-	int[] colors = new int[] {Color.BLACK, Color.BLUE, Color.CYAN, Color.DKGRAY, Color.GRAY, Color.GREEN, Color.LTGRAY, Color.MAGENTA, Color.RED, Color.WHITE, Color.YELLOW, Color.LTGRAY, Color.RED, Color.BLUE}; 
+	
+	String[] places = new String[] {"<name_of_place>", "<name_of_place>","<name_of_place>", "<name_of_place>", "<name_of_place>", "<name_of_place>", "<name_of_place>", "<name_of_place>", "<name_of_place>, <name_of_place>", "<name_of_place>","<name_of_place>","<name_of_place>","<name_of_place>", "<name_of_place>, <name_of_place>"};
 
 	/** is the view Inited? */
 	boolean isInit = false;
@@ -51,12 +65,7 @@ public class DataView {
 	Context _context;
 	/** width and height of the view*/
 	int width, height;
-	/** _NOT_ the android camera, the class that takes care of the transformation*/
-	Camera cam;
 	android.hardware.Camera camera;
-	/** */
-	/** The view can be "frozen" for debug purposes */
-	boolean frozen = false;
 
 	float yawPrevious;
 	float yaw = 0;
@@ -94,12 +103,15 @@ public class DataView {
 
 	public void init(int widthInit, int heightInit, android.hardware.Camera camera, DisplayMetrics displayMetrics, RelativeLayout rel) {
 		try {
+			
 			locationMarkerView = new RelativeLayout[latitudes.length];
 			layoutParams = new RelativeLayout.LayoutParams[latitudes.length];
 			subjectImageViewParams = new RelativeLayout.LayoutParams[latitudes.length];
 			subjectTextViewParams = new RelativeLayout.LayoutParams[latitudes.length];
 			subjectImageView = new ImageView[latitudes.length];
 			locationTextView = new TextView[latitudes.length];
+			nextXofText = new int[latitudes.length];
+			
 			for(int i=0;i<latitudes.length;i++){
 				layoutParams[i] = new RelativeLayout.LayoutParams(10, 10);
 				subjectTextViewParams[i] = new RelativeLayout.LayoutParams(50, 30);
@@ -136,8 +148,11 @@ public class DataView {
 
 					@Override
 					public void onClick(View v) {
-						locationMarkerView[v.getId()].bringToFront();
-						Toast.makeText(_context, " LOCATION NO : "+v.getId(), Toast.LENGTH_SHORT).show();
+						if (v.getId() != -1) {
+							locationMarkerView[v.getId()].bringToFront();
+							Toast.makeText(_context, " LOCATION NO : "+v.getId(), Toast.LENGTH_SHORT).show();
+						}
+						
 					}
 				});
 
@@ -146,8 +161,11 @@ public class DataView {
 
 					@Override
 					public void onClick(View v) {
-						locationMarkerView[v.getId()].bringToFront();
-						Toast.makeText(_context, " LOCATION NO : "+v.getId(), Toast.LENGTH_SHORT).show();
+						if ((v.getId() != -1)) {
+							locationMarkerView[v.getId()].bringToFront();
+							Toast.makeText(_context, " LOCATION NO : "+v.getId(), Toast.LENGTH_SHORT).show();
+						}
+						
 					}
 				});
 
@@ -155,19 +173,16 @@ public class DataView {
 
 					@Override
 					public void onClick(View v) {
-						locationMarkerView[v.getId()].bringToFront();
-						Toast.makeText(_context, " LOCATION NO : "+v.getId(), Toast.LENGTH_SHORT).show();
+						if (v.getId() != -1) {
+							locationMarkerView[v.getId()].bringToFront();
+							Toast.makeText(_context, " LOCATION NO : "+v.getId(), Toast.LENGTH_SHORT).show();
+						}
+						
 					}
 				});
 			}
 
-			latitudeStr = new String[latitudes.length];
-			longitudeStr = new String[longitudes.length];
 
-			for(int i=0;i<latitudes.length;i++){
-				latitudeStr[i] = Double.toString(latitudes[i]);
-				longitudeStr[i] = Double.toString(longitudes[i]);
-			}
 
 			bmp = BitmapFactory.decodeResource(_context.getResources(), R.drawable.icon);
 
@@ -177,8 +192,8 @@ public class DataView {
 
 
 			bearings = new double[latitudes.length];
-			currentLocation.setLatitude(19.413983);
-			currentLocation.setLongitude(72.827511);
+			currentLocation.setLatitude(19.413958);
+			currentLocation.setLongitude(72.82729);
 
 
 			if(bearing < 0)
@@ -199,10 +214,7 @@ public class DataView {
 			this.camera = camera;
 			width = widthInit;
 			height = heightInit;
-
-			cam = new Camera(width, height, true);
-			cam.setViewAngle(Camera.DEFAULT_VIEW_ANGLE);
-
+			
 			lrl.set(0, -RadarView.RADIUS);
 			lrl.rotate(Camera.DEFAULT_VIEW_ANGLE / 2);
 			lrl.add(rx + RadarView.RADIUS, ry + RadarView.RADIUS);
@@ -212,9 +224,11 @@ public class DataView {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		frozen = false;
+		
+		/*
+		 * initialization is done, so dont call init() again.
+		 * */
 		isInit = true;
-		isFirstEntry = true;
 	}
 
 	public void draw(PaintUtils dw, float yaw, float pitch, float roll) {
@@ -251,12 +265,10 @@ public class DataView {
 
 
 		drawTextBlock(dw);
-		//		drawPOI(dw,yawPrevious);
 	}
 
 	void drawPOI(PaintUtils dw, float yaw){
 		if(isDrawing){
-			//			yawPrevious = this.yaw;
 			dw.paintObj(radarPoints, rx+PaintUtils.XPADDING, ry+PaintUtils.YPADDING, -this.yaw, 1, this.yaw);
 			isDrawing = false;
 		}
@@ -280,23 +292,10 @@ public class DataView {
 				layoutParams[count].width = 90;
 				locationMarkerView[count].setLayoutParams(layoutParams[count]);
 
-				//				dw.setColor(Color.argb(120, 0, 0, 0));
-				//				dw.setFill(true);
-				//				locationBlockHeight = bmp.getHeight();
-				//				locationBlockWidth = (int)(w +bmp.getWidth()+10);
-				//				dw.paintRect(x - w / 2 - 10, y - h / 2 - 10, bmp.getWidth()+200, bmp.getHeight());
-				//				dw.setColor(Color.rgb(255, 255, 255));
-				//				dw.setFill(false);
-				//				dw.setFontStyle(Typeface.BOLD);
-				//				dw.getCanvas().drawBitmap(bmp,x - w / 2 - 10, y - h / 2 - 10, dw.paint);
-				//				dw.paintText(padw + x - w / 2 + bmp.getWidth(), dw.getTextAsc() + y - h / 2 ,str);
-				//				dw.paintText(padw + x - w / 2 + bmp.getWidth(), dw.getTextAsc() + y - h / 2 + 15,Float.toString(this.pitch));
-
 			}else{
 				dw.setColor(Color.rgb(0, 0, 0));
 				dw.setFill(true);
 				dw.paintRect((x - w / 2) + PaintUtils.XPADDING , (y - h / 2) + PaintUtils.YPADDING, w, h);
-//				float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (padw + x - w / 2), displayMetrics);
 				pixelstodp = (padw + x - w / 2)/((displayMetrics.density)/160);
 				dw.setColor(Color.rgb(255, 255, 255));
 				dw.setFill(false);
@@ -314,21 +313,6 @@ public class DataView {
 		return str;
 
 	}
-	/*nextXofText[i] array stores the xposition of rect to be drawn. Updates on every onDraw*/
-	boolean checkForOverLapping(int XCoordinate,int position){
-		boolean isInRange = false;
-
-		for (int i = 0; i < nextXofText.length; i++) {
-			if(coordinateArray[i][0]<= coordinateArray[position][0] && coordinateArray[position][0]<= coordinateArray[i][0]+40){
-				isInRange = true;
-				break;
-			}
-		}
-
-		return isInRange;
-	}
-
-
 
 	void drawTextBlock(PaintUtils dw){
 

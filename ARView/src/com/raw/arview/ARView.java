@@ -75,7 +75,7 @@ public class ARView extends Activity implements SensorEventListener{
 		super.onCreate(savedInstanceState);
 
 		final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		this.mWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "My Tag");
+		this.mWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "");
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		displayMetrics = new DisplayMetrics();
