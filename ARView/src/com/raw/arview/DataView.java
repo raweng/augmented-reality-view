@@ -1,15 +1,20 @@
 package com.raw.arview;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.location.Location;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -43,9 +48,13 @@ public class DataView {
 	 *  Array or Array lists of latitude and longitude to plot
 	 *  In your case you can populate with an ArrayList
 	 * */
-	
-	double[] latitudes = new double[] {0, 0};
-	double[] longitudes = new double[] {0, 0};
+	// SF Art Commission, SF Dept. of Public Health, SF Ethics Comm, SF Conservatory of Music, All Star Cafe, Magic Curry Cart, SF SEO Marketing, SF Honda, 
+	// SF Mun Transport Agency, SF Parking Citation, Mayors Office of Housing, SF Redev Agency, Catario Patrice, Bank of America , SF Retirement System, Bank of America Mortage,
+	// Writers Corp., Van Nes Keno Mkt.
+	double[] latitudes = new double[] {37.775672, 37.775729, 37.775578, 37.77546, 37.775199, 37.774887, 37.774637, 
+			37.774614, 37.774406, 37.774754, 37.774813, 37.774961, 37.774957, 37.775171, 37.775996, 37.775818, 37.775691, 37.775909};
+	double[] longitudes = new double[] {-122.419992, -122.419601, -122.419719, -122.42026, -122.419646, -122.419405, -122.42037, 
+			-122.41934, -122.41886, -122.418785, -122.418581, -122.418868, -122.418064, -122.418884, -122.418898, -122.418305, -122.418895, -122.419161};
 	
 	int[] nextXofText ;
 	ArrayList<Integer> 	nextYofText = new ArrayList<Integer>();
@@ -56,8 +65,9 @@ public class DataView {
 	Location currentLocation = new Location("provider");
 	Location destinedLocation = new Location("provider");
 	
-	String[] places = new String[] {"<name_of_place>", "<name_of_place>","<name_of_place>", "<name_of_place>", "<name_of_place>", "<name_of_place>", "<name_of_place>", "<name_of_place>", "<name_of_place>, <name_of_place>", "<name_of_place>","<name_of_place>","<name_of_place>","<name_of_place>", "<name_of_place>, <name_of_place>"};
-
+	String[] places = new String[] {"SF Art Commission", "SF Dept. of Public Health", "SF Ethics Comm", "SF Conservatory of Music", "All Star Cafe", 
+			"Magic Curry Cart", "SF SEO Marketing", " SF Honda", "SF Mun Transport Agency", "SF Parking Citation", "Mayors Office of Housing", "SF Redev Agency", "Catario Patrice", "Bank of America", 
+			"SF Retirement System", "Bank of America Mortage", "Writers Corp.", "Van Nes Keno Mkt."};
 	/** is the view Inited? */
 	boolean isInit = false;
 	boolean isDrawing = true;
@@ -149,8 +159,30 @@ public class DataView {
 					@Override
 					public void onClick(View v) {
 						if (v.getId() != -1) {
+							
+							RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) locationMarkerView[v.getId()].getLayoutParams();
+							Rect rect = new Rect(params.leftMargin, params.topMargin, params.leftMargin + params.width, params.topMargin + params.height);
+							ArrayList<Integer> matchIDs = new ArrayList<Integer>();
+							Rect compRect = new Rect();
+							int index = 0;
+							for (RelativeLayout.LayoutParams layoutparams : layoutParams) {
+								compRect.set(layoutparams.leftMargin, layoutparams.topMargin, 
+										layoutparams.leftMargin + layoutparams.width, layoutparams.topMargin + layoutparams.height);
+								if (compRect.intersect(rect)) {
+									matchIDs.add(index);
+								}
+								index++;
+							}
+							
+							if (matchIDs.size() > 1) {
+								
+							}
+							Toast.makeText(_context, "Number of places here = "+matchIDs.size(), Toast.LENGTH_SHORT).show();
+							
 							locationMarkerView[v.getId()].bringToFront();
-							Toast.makeText(_context, " LOCATION NO : "+v.getId(), Toast.LENGTH_SHORT).show();
+							
+//							locationMarkerView[v.getId()].bringToFront();
+//							Toast.makeText(_context, " LOCATION NO : "+v.getId(), Toast.LENGTH_SHORT).show();
 						}
 						
 					}
@@ -162,8 +194,30 @@ public class DataView {
 					@Override
 					public void onClick(View v) {
 						if ((v.getId() != -1)) {
+							
+							RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) locationMarkerView[v.getId()].getLayoutParams();
+							Rect rect = new Rect(params.leftMargin, params.topMargin, params.leftMargin + params.width, params.topMargin + params.height);
+							ArrayList<Integer> matchIDs = new ArrayList<Integer>();
+							Rect compRect = new Rect();
+							int index = 0;
+							for (RelativeLayout.LayoutParams layoutparams : layoutParams) {
+								compRect.set(layoutparams.leftMargin, layoutparams.topMargin, 
+										layoutparams.leftMargin + layoutparams.width, layoutparams.topMargin + layoutparams.height);
+								if (compRect.intersect(rect)) {
+									matchIDs.add(index);
+								}
+								index++;
+							}
+							
+							if (matchIDs.size() > 1) {
+								
+							}
+							Toast.makeText(_context, "Number of places here = "+matchIDs.size(), Toast.LENGTH_SHORT).show();
+							
 							locationMarkerView[v.getId()].bringToFront();
-							Toast.makeText(_context, " LOCATION NO : "+v.getId(), Toast.LENGTH_SHORT).show();
+							
+//							locationMarkerView[v.getId()].bringToFront();
+//							Toast.makeText(_context, " LOCATION NO : "+v.getId(), Toast.LENGTH_SHORT).show();
 						}
 						
 					}
@@ -174,8 +228,29 @@ public class DataView {
 					@Override
 					public void onClick(View v) {
 						if (v.getId() != -1) {
+							RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) locationMarkerView[v.getId()].getLayoutParams();
+							Rect rect = new Rect(params.leftMargin, params.topMargin, params.leftMargin + params.width, params.topMargin + params.height);
+							ArrayList<Integer> matchIDs = new ArrayList<Integer>();
+							Rect compRect = new Rect();
+							int count = 0;
+							int index = 0;
+							for (RelativeLayout.LayoutParams layoutparams : layoutParams) {
+								compRect.set(layoutparams.leftMargin, layoutparams.topMargin, 
+										layoutparams.leftMargin + layoutparams.width, layoutparams.topMargin + layoutparams.height);
+								if (compRect.intersect(rect)) {
+									matchIDs.add(index);
+									count+=1;
+								}
+								index++;
+							}
+							
+							if (count > 1) {
+								
+							}
+							Toast.makeText(_context, "Number of places here = "+count, Toast.LENGTH_SHORT).show();
+							
 							locationMarkerView[v.getId()].bringToFront();
-							Toast.makeText(_context, " LOCATION NO : "+v.getId(), Toast.LENGTH_SHORT).show();
+//							Toast.makeText(_context, " LOCATION NO : "+v.getId(), Toast.LENGTH_SHORT).show();
 						}
 						
 					}
@@ -189,7 +264,7 @@ public class DataView {
 			this.displayMetrics = displayMetrics;
 			this.degreetopixelWidth = this.displayMetrics.widthPixels / camera.getParameters().getHorizontalViewAngle();
 			this.degreetopixelHeight = this.displayMetrics.heightPixels / camera.getParameters().getVerticalViewAngle();
-
+			System.out.println("camera.getParameters().getHorizontalViewAngle()=="+camera.getParameters().getHorizontalViewAngle());
 
 			bearings = new double[latitudes.length];
 			currentLocation.setLatitude(19.413958);
@@ -357,5 +432,38 @@ public class DataView {
 				}
 			}
 		}
+	}
+	
+	public class NearbyPlacesList extends BaseAdapter{
+
+		ArrayList<Integer> matchIDs = new ArrayList<Integer>();
+		public NearbyPlacesList(ArrayList<Integer> matchID){
+			matchIDs = matchID;
+		}
+		
+		@Override
+		public int getCount() {
+			// TODO Auto-generated method stub
+			return matchIDs.size();
+		}
+
+		@Override
+		public Object getItem(int position) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public long getItemId(int position) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
 	}
 }
