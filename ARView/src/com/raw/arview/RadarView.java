@@ -2,6 +2,7 @@ package com.raw.arview;
 
 import android.graphics.Color;
 import android.location.Location;
+import android.util.TypedValue;
 
 import com.raw.utils.PaintUtils;
 
@@ -41,7 +42,7 @@ public class RadarView{
 	public float bearing;
 	public float circleOriginX;
 	public float circleOriginY;
-	float scale;
+	private float mscale;
 	
 	
 	public float x = 0;
@@ -54,20 +55,29 @@ public class RadarView{
 	
 	public RadarView(DataView dataView, double[] bearings){
 		this.bearings = bearings;
+		calculateMetrics();
+	}
+	
+	public void calculateMetrics(){
+		circleOriginX = originX + RADIUS;
+		circleOriginY = originY + RADIUS;
+		
+		range = (float)arView.convertToPix(10) * 50;
+		mscale = range / arView.convertToPix((int)RADIUS);
 	}
 	
 	public void paint(PaintUtils dw, float yaw) {
 		
-		circleOriginX = originX + RADIUS;
-		circleOriginY = originY + RADIUS;
+//		circleOriginX = originX + RADIUS;
+//		circleOriginY = originY + RADIUS;
 		this.yaw = yaw;
-		range = arView.convertToPix(10) * 1000;		/** Draw the radar */
+//		range = arView.convertToPix(10) * 1000;		/** Draw the radar */
 		dw.setFill(true);
 		dw.setColor(radarColor);
 		dw.paintCircle(originX + RADIUS, originY + RADIUS, RADIUS);
 
 		/** put the markers in it */
-		float scale = range / arView.convertToPix((int)RADIUS);
+//		float scale = range / arView.convertToPix((int)RADIUS);
 		/**
 		 *  Your current location coordinate here.
 		 * */
@@ -79,8 +89,8 @@ public class RadarView{
 			destinedLocation.setLatitude(latitudes[i]);
 			destinedLocation.setLongitude(longitudes[i]);
 			convLocToVec(currentLocation, destinedLocation);
-			float x = this.x / scale;
-			float y = this.z / scale;
+			float x = this.x / mscale;
+			float y = this.z / mscale;
 
 			
 			if (x * x + y * y < RADIUS * RADIUS) {
@@ -149,7 +159,6 @@ public class RadarView{
 		float[] x = new float[1];
 		Location.distanceBetween(source.getLatitude(), source.getLongitude(), source
 				.getLatitude(), destination.getLongitude(), x);
-		double y = destination.getAltitude() - source.getAltitude();
 		if (source.getLatitude() < destination.getLatitude())
 			z[0] *= -1;
 		if (source.getLongitude() > destination.getLongitude())
