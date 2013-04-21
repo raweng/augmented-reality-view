@@ -3,7 +3,6 @@ package com.raw.arview;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -33,7 +32,6 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.raw.utils.Compatibility;
 import com.raw.utils.PaintUtils;
 
@@ -69,6 +67,10 @@ public class ARView extends Activity implements SensorEventListener{
 	private List<Sensor> sensors;
 	private Sensor sensorGrav, sensorMag;
 
+	static final float ALPHA = 0.25f;
+	protected float[] gravSensorVals;
+	protected float[] magSensorVals;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +82,7 @@ public class ARView extends Activity implements SensorEventListener{
 
 		displayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-		
+
 		screenHeight = displayMetrics.heightPixels;
 		screenWidth = displayMetrics.widthPixels;
 
@@ -88,7 +90,7 @@ public class ARView extends Activity implements SensorEventListener{
 		RelativeLayout.LayoutParams upperLayerLayoutParams = new RelativeLayout.LayoutParams(android.widget.RelativeLayout.LayoutParams.FILL_PARENT, android.widget.RelativeLayout.LayoutParams.FILL_PARENT);
 		upperLayerLayout.setLayoutParams(upperLayerLayoutParams);
 		upperLayerLayout.setBackgroundColor(Color.TRANSPARENT);
-		
+
 		_context = this;
 		cameraView = new CameraView(this);
 		radarMarkerView = new RadarMarkerView(this, displayMetrics, upperLayerLayout);
@@ -98,9 +100,9 @@ public class ARView extends Activity implements SensorEventListener{
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		
-		
-		
+
+
+
 		FrameLayout headerFrameLayout = new FrameLayout(this);
 		RelativeLayout headerRelativeLayout = new RelativeLayout(this);
 		RelativeLayout.LayoutParams relaLayoutParams  = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.FILL_PARENT);
@@ -119,8 +121,8 @@ public class ARView extends Activity implements SensorEventListener{
 		textparams.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
 		titleTextView.setLayoutParams(textparams);
 		titleTextView.setText("Augmented Reality View");
-		
-		
+
+
 		headerRelativeLayout.addView(button);
 		headerRelativeLayout.addView(titleTextView);
 		headerFrameLayout.addView(headerRelativeLayout);
@@ -139,13 +141,13 @@ public class ARView extends Activity implements SensorEventListener{
 		}
 
 		upperLayerLayout.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				Toast.makeText(_context, "RELATIVE LAYOUT CLICKED", Toast.LENGTH_SHORT).show();
 			}
 		});
-		
+
 		cameraView.setOnTouchListener(new OnTouchListener() {
 
 			@Override
@@ -154,8 +156,8 @@ public class ARView extends Activity implements SensorEventListener{
 				for (int i = 0 ; i < dataView.coordinateArray.length; i++) {
 					if((int)event.getX() < dataView.coordinateArray[i][0] &&  ((int)event.getX()+100) > dataView.coordinateArray[i][0]){
 						if((int)event.getY() <= dataView.coordinateArray[i][1] && ((int)event.getY()+100) > dataView.coordinateArray[i][1]){
-						Toast.makeText(_context, "match Found its "+dataView.places[i], Toast.LENGTH_SHORT).show();
-						return false;
+							Toast.makeText(_context, "match Found its "+dataView.places[i], Toast.LENGTH_SHORT).show();
+							return false;
 						}
 					}
 				}
@@ -171,7 +173,7 @@ public class ARView extends Activity implements SensorEventListener{
 	public int convertToPix(int val){
 		float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, _context.getResources().getDisplayMetrics());
 		return (int)px;
-		 
+
 	}
 	@Override
 	protected void onDestroy() {
@@ -191,11 +193,11 @@ public class ARView extends Activity implements SensorEventListener{
 
 	@Override
 	protected void onResume() {
-		
+
 		super.onResume();
 		this.mWakeLock.acquire();
-		
-		
+
+
 		sensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
 
 		sensors = sensorMgr.getSensorList(Sensor.TYPE_ACCELEROMETER);
@@ -220,40 +222,50 @@ public class ARView extends Activity implements SensorEventListener{
 
 	@Override
 	public void onSensorChanged(SensorEvent evt) {
-		
-		
+
+
 		if (evt.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+			gravSensorVals = lowPass(evt.values.clone(), gravSensorVals);
 			grav[0] = evt.values[0];
 			grav[1] = evt.values[1];
 			grav[2] = evt.values[2];
 
 		} else if (evt.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+			magSensorVals = lowPass(evt.values.clone(), magSensorVals);
 			mag[0] = evt.values[0];
 			mag[1] = evt.values[1];
 			mag[2] = evt.values[2];
 
 		}
 
-		SensorManager.getRotationMatrix(RTmp, I, grav, mag);
+		if (gravSensorVals != null && magSensorVals != null) {
+			SensorManager.getRotationMatrix(RTmp, I, gravSensorVals, magSensorVals);
 
-		int rotation = Compatibility.getRotation(this);
+			int rotation = Compatibility.getRotation(this);
 
-		if (rotation == 1) {
-			SensorManager.remapCoordinateSystem(RTmp, SensorManager.AXIS_X, SensorManager.AXIS_MINUS_Z, Rot);
-		} else {
-			SensorManager.remapCoordinateSystem(RTmp, SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_Z, Rot);
+			if (rotation == 1) {
+				SensorManager.remapCoordinateSystem(RTmp, SensorManager.AXIS_X, SensorManager.AXIS_MINUS_Z, Rot);
+			} else {
+				SensorManager.remapCoordinateSystem(RTmp, SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_Z, Rot);
+			}
+
+			SensorManager.getOrientation(Rot, results);
+
+			ARView.azimuth = (float)(((results[0]*180)/Math.PI)+180);
+			ARView.pitch = (float)(((results[1]*180/Math.PI))+90);
+			ARView.roll = (float)(((results[2]*180/Math.PI)));
+
+			radarMarkerView.postInvalidate();
 		}
+	}
 
-		SensorManager.getOrientation(Rot, results);
-//		System.out.println("-------****------YAW-----****--------|"+(((results[0]*180)/Math.PI)+180));
-//		System.out.println("--------****-----PITCH---****----------|"+(((results[1]*180/Math.PI))+90));
-//		System.out.println("--------****-----ROLL------****-------|"+(((results[2]*180/Math.PI))));
-		
-		ARView.azimuth = (float)(((results[0]*180)/Math.PI)+180);
-		ARView.pitch = (float)(((results[1]*180/Math.PI))+90);
-		ARView.roll = (float)(((results[2]*180/Math.PI)));
+	protected float[] lowPass( float[] input, float[] output ) {
+		if ( output == null ) return input;
 
-		radarMarkerView.postInvalidate();
+		for ( int i=0; i<input.length; i++ ) {
+			output[i] = output[i] + ALPHA * (input[i] - output[i]);
+		}
+		return output;
 	}
 }
 class CameraView extends SurfaceView implements SurfaceHolder.Callback {
