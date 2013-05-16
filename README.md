@@ -8,15 +8,15 @@
 
 
 ## Software and Algorithms 
-
+https://raw.github.com/Bhide/AugmentedRealityView/master/screenshots/places_near_list.png
 A key measure of AR systems is how realistically they integrate augmentations with the real world. The software must derive real world coordinates, independent of camera images.
 
 Our AugmentedRealityView app uses android phone sensors and certain physics concepts for calculating the Point Of Interest (POIs).
 The Camera Angle of View and Android's magnetic and accelerometer sensors are considered in calculating the azimuth (yaw), pitch and roll positions.
 
 Android's `SurfaceView` is used to render the device camera and put markers onto it.  
-![image](https://dl.dropboxusercontent.com/u/2906868/ARView.png)
-![image](https://dl.dropboxusercontent.com/u/2906868/places_near_list.png)  
+![image](https://github.com/Bhide/AugmentedRealityView/blob/master/screenshots/ARView.png)
+![image](https://raw.github.com/Bhide/AugmentedRealityView/master/screenshots/ARView.png)  
 **Figure: AugmentedRealityView for Android**
 
 Two main classes that comprise this View are:
