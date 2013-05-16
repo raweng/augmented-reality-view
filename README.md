@@ -16,7 +16,7 @@ The Camera Angle of View and Android's magnetic and accelerometer sensors are co
 
 Android's `SurfaceView` is used to render the device camera and put markers onto it.  
 ![image](https://github.com/Bhide/AugmentedRealityView/blob/master/screenshots/ARView.png)
-![image](https://raw.github.com/Bhide/AugmentedRealityView/master/screenshots/ARView.png)  
+![image](https://raw.github.com/Bhide/AugmentedRealityView/master/screenshots/places_near_list.png)  
 **Figure: AugmentedRealityView for Android**
 
 Two main classes that comprise this View are:
