@@ -1,6 +1,8 @@
 # Augmented Reality View for Android 
 
 
+Read more about 'Applying a Low Pass Filter to Android Sensors' in the [blog](http://www.raweng.com/blog/2013/05/28/applying-low-pass-filter-to-android-sensors-readings/) post on the [raw engineering](http://www.raweng.com/) website.<br>
+
 **AugmentedRealityView** project was created by the mobile development team at [raw engineering](http://raweng.com "raw engineering."), and is available on [Github](https://github.com/Bhide/AugmentedRealityView.git). This project can be integrated into any other app, needing AugmentedRealityView.
 
 
