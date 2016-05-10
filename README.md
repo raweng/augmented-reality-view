@@ -1,3 +1,6 @@
+## Blog
+[https://www.built.io/blog/2013/05/applying-low-pass-filter-to-android-sensors-readings/] (https://www.built.io/blog/2013/05/applying-low-pass-filter-to-android-sensors-readings/ "https://www.built.io/blog/2013/05/applying-low-pass-filter-to-android-sensors-readings/")
+
 # Augmented Reality View for Android 
 
 
